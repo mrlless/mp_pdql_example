@@ -2056,3 +2056,6 @@ filter(cnt \> 1)
 filter(host.ipaddress != null and host.@audittime != null) \|
 select(@Host, Host.OsName, host.@AuditTime, host.IpAddress) \|
 group(host.IpAddress, COUNT(\*) as cnt) \| filter(cnt \> 1)
+
+Уязвимости на портах
+Host.Endpoints<TransportEndpoint>.Port, Host.Endpoints<TransportEndpoint>.Service.DisplayName , Host.Endpoints<TransportEndpoint>.@Vulners

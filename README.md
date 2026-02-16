@@ -2059,3 +2059,6 @@ group(host.IpAddress, COUNT(\*) as cnt) \| filter(cnt \> 1)
 
 Уязвимости на портах
 Host.Endpoints<TransportEndpoint>.Port, Host.Endpoints<TransportEndpoint>.Service.DisplayName , Host.Endpoints<TransportEndpoint>.@Vulners
+
+
+select(@Host, Host.Softs.Name as SoftwareName, Host.Softs.Version as SoftwareVersion, Host.Softs.@Vulners.VulnerableEntity.Path as SoftwarePath, Host.Softs.@Vulners as Vulners, Host.Softs.@Vulners.DiscoveryTime, Host.Softs.@Vulners.Status, Host.Softs.@Vulners.FixType, Host.Softs.@Vulners.Tags, Host.Softs.@Vulners.CVEs, Host.Softs.@Vulners.CVSS3BaseScore) | filter(Host.Softs.@Vulners.Status != 'fixed' and Host.Softs.@Vulners.Status != null and Host.Softs.@Vulners.CVEs != null) | filter(Host.Softs.@Vulners.CVSS3BaseScore >= 8)****

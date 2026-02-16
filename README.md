@@ -2072,3 +2072,6 @@ select(@Host, Host.OsName as OsName, Host.@Vulners as Vulners, Host.@Vulners.Sev
   | calc(if Severity = "critical" then 0 as waCritical) | calc(VulnerCount + waCritical as nCritical)
   | select(@Host, sum(nNone) as NoneCount, sum(nLow) as LowCount, sum(nMedium) as MediumCount,
       sum(nHigh) as HighCount, sum(nCritical) as CriticalCount) as Counted, @Host = Counted.@Host) | select(@Host, OsName, TotalVulners, Counted.NoneCount as NoneCount, Counted.LowCount as LowCount, Counted.MediumCount as MediumCount, Counted.HighCount as HighCount, Counted.CriticalCount as CriticalCount) | sort(CriticalCount DESC)
+
+
+select(@Host, Host.OsName as OsName, Host.@Vulners as Vulners, Host.@Vulners.SeverityRating as Severity, Host.@Vulners.VulnerableEntity.Name, Host.@Vulners.Status, host.@Vulners.Metrics.HasFix) | filter(Vulners and Host.@Vulners.Status != 'fixed' and Host.@Vulners.Metrics.HasFix = true and Severity in ["High", "Critical"]) | sort(Severity DESC)

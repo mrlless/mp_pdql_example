@@ -2062,3 +2062,13 @@ Host.Endpoints<TransportEndpoint>.Port, Host.Endpoints<TransportEndpoint>.Servic
 
 
 select(@Host, Host.Softs.Name as SoftwareName, Host.Softs.Version as SoftwareVersion, Host.Softs.@Vulners.VulnerableEntity.Path as SoftwarePath, Host.Softs.@Vulners as Vulners, Host.Softs.@Vulners.DiscoveryTime, Host.Softs.@Vulners.Status, Host.Softs.@Vulners.FixType, Host.Softs.@Vulners.Tags, Host.Softs.@Vulners.CVEs, Host.Softs.@Vulners.CVSS3BaseScore) | filter(Host.Softs.@Vulners.Status != 'fixed' and Host.Softs.@Vulners.Status != null and Host.Softs.@Vulners.CVEs != null) | filter(Host.Softs.@Vulners.CVSS3BaseScore >= 8)****
+
+select(@Host, Host.OsName as OsName, Host.@Vulners as Vulners, Host.@Vulners.SeverityRating as Severity,Host.@Vulners.VulnerableEntity.Name ) | filter(Vulners) | sort(Severity DESC, Vulners ASC) | group(@Host, OsName, COUNT(*) as TotalVulners) | join(select(@Host, Host.@Vulners as Vulners, Host.@Vulners.SeverityRating as Severity)
+  | group(@Host, Severity, COUNT(*) as VulnerCount)
+  | calc(if Severity = "none" then 0 as waNone) | calc(VulnerCount + waNone as nNone)
+  | calc(if Severity = "low" then 0 as waLow) | calc(VulnerCount + waLow as nLow)
+  | calc(if Severity = "medium" then 0 as waMedium) | calc(VulnerCount + waMedium as nMedium)
+  | calc(if Severity = "high" then 0 as waHigh) | calc(VulnerCount + waHigh as nHigh)
+  | calc(if Severity = "critical" then 0 as waCritical) | calc(VulnerCount + waCritical as nCritical)
+  | select(@Host, sum(nNone) as NoneCount, sum(nLow) as LowCount, sum(nMedium) as MediumCount,
+      sum(nHigh) as HighCount, sum(nCritical) as CriticalCount) as Counted, @Host = Counted.@Host) | select(@Host, OsName, TotalVulners, Counted.NoneCount as NoneCount, Counted.LowCount as LowCount, Counted.MediumCount as MediumCount, Counted.HighCount as HighCount, Counted.CriticalCount as CriticalCount) | sort(CriticalCount DESC)

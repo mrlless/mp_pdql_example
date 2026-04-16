@@ -2075,3 +2075,7 @@ select(@Host, Host.OsName as OsName, Host.@Vulners as Vulners, Host.@Vulners.Sev
 
 
 select(@Host, Host.OsName as OsName, Host.@Vulners as Vulners, Host.@Vulners.SeverityRating as Severity, Host.@Vulners.VulnerableEntity.Name, Host.@Vulners.Status, host.@Vulners.Metrics.HasFix) | filter(Vulners and Host.@Vulners.Status != 'fixed' and Host.@Vulners.Metrics.HasFix = true and Severity in ["High", "Critical"]) | sort(Severity DESC)
+
+
+#LLM в DNS винды
+filter(event_src.vendor = "microsoft" AND event_src.title = "windows" AND event_src.category = "DNS server" AND(object.value contains "openai" or object.value contains "claude" or object.value contains "gemini" or object.value contains "deepseek") AND src.host != null) | select(time, event_src.host, text, src.host) | sort(time desc) | group(key: [src.host, datafield3], agg: COUNT(*) as Cnt) | sort(Cnt desc) | limit(10000)
